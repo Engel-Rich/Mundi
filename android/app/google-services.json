@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "986364973775",
+    "firebase_url": "https://chatapp-d8629-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "chatapp-d8629",
+    "storage_bucket": "chatapp-d8629.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986364973775:android:a73960ac6ab9c2ef035dba",
+        "android_client_info": {
+          "package_name": "com.example.minka"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "986364973775-6rt3ntt8h9a73umkpu58j49vdi59hopg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0n95JO_b_uaFt1aszI41B2AX4wgYwnJs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "986364973775-6rt3ntt8h9a73umkpu58j49vdi59hopg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "986364973775-rrtkfriurp2ggqmu8vd2c72gidtdh2jg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.minka"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
