@@ -222,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 SizedBox(
-                  height: 240,
+                  height: 220,
                   child: StreamBuilder<List<Storie>>(
                       stream: Storie.stories(),
                       builder: (context, snapshot) {
@@ -318,7 +318,7 @@ class _HomePageState extends State<HomePage> {
                         }
                       }),
                 ),
-                specervertical(34),
+                specervertical(10),
                 StreamBuilder<List<Publication>>(
                     stream: Publication.publications(),
                     builder: (context, snapshot) {

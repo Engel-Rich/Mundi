@@ -2,10 +2,12 @@
 
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -91,6 +93,7 @@ class _SpinkState extends State<Spink> with TickerProviderStateMixin {
   }
 }
 
+final backColors = const Color.fromRGBO(62, 139, 134, 1);
 final utilisateurApp = auth.currentUser;
 final pubCollection = FirebaseFirestore.instance.collection("Publications");
 final userCollection = FirebaseFirestore.instance.collection("Users");
@@ -191,6 +194,12 @@ Widget storie(Storie stori) {
   );
 }
 
+toaster(String msg) => Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_LONG,
+      backgroundColor: const Color.fromRGBO(62, 139, 134, 1),
+    );
+
 // publication view model
 
 publicationUi(BuildContext context, Publication publication, bool isdetail) {
@@ -272,40 +281,55 @@ publicationUi(BuildContext context, Publication publication, bool isdetail) {
                   ? Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 3),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.network(
-                          publication.images!,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            return loadingProgress == null
-                                ? child
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      child: ShimmerEffet.rectangle(
-                                          shapeBorder: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(20))),
-                                          hauter: 400,
-                                          largeur: double.infinity),
-                                    ),
-                                  );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.amber,
-                              height: 230,
-                              alignment: Alignment.center,
-                              child: const Text(
-                                'Erreur de connection',
-                                style: TextStyle(fontSize: 30),
-                              ),
-                            );
-                          },
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                      child: InkWell(
+                        onTap: () {
+                          showImageViewer(
+                              context, Image.network(publication.images!).image,
+                              swipeDismissible: true,
+                              backgroundColor: backColors,
+                              useSafeArea: true);
+                        },
+                        onDoubleTap: () {
+                          Likes likes = Likes(
+                              userId: auth.currentUser!.uid,
+                              publication: publication);
+                          likes.save();
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.network(
+                            publication.images!,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              return loadingProgress == null
+                                  ? child
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 5),
+                                        child: ShimmerEffet.rectangle(
+                                            shapeBorder: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20))),
+                                            hauter: 400,
+                                            largeur: double.infinity),
+                                      ),
+                                    );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.amber,
+                                height: 230,
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'Erreur de connection',
+                                  style: TextStyle(fontSize: 30),
+                                ),
+                              );
+                            },
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     )

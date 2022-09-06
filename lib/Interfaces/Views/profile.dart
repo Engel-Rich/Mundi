@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:minka/Interfaces/Views/storiescreen.dart';
+import 'package:minka/Interfaces/add/statutaddpage.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'package:minka/Interfaces/add/addpublication.dart';
 import 'package:minka/models/publication.dart';
 import 'package:minka/models/storie.dart';
 import 'package:minka/models/userapp.dart';
 import 'package:minka/variable.dart';
+import 'package:page_transition/page_transition.dart';
 // import 'package:page_transition/page_transition.dart';
 
 class ProfileUser extends StatefulWidget {
@@ -160,7 +163,7 @@ class _ProfileUserState extends State<ProfileUser> {
                 ],
               ),
               SizedBox(
-                height: 240,
+                height: 220,
                 child: StreamBuilder<List<Storie>>(
                     stream: Storie.stories(),
                     builder: (context, snapshot) {
@@ -168,19 +171,79 @@ class _ProfileUserState extends State<ProfileUser> {
                         return Text(snapshot.error.toString());
                       }
                       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                        return ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 7, horizontal: 5),
-                                child: storie(snapshot.data![index]));
-                          },
+                        return Stack(
+                          children: [
+                            ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 7, horizontal: 5),
+                                    child: Stack(
+                                      children: [
+                                        StreamBuilder<List<Storie>>(
+                                            stream: Storie.storipersonel(
+                                                snapshot
+                                                    .data![index].userstoreie),
+                                            builder: (context, snaps) {
+                                              return InkWell(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                        PageTransition(
+                                                            child: StoriesScreen(
+                                                                stories: snaps
+                                                                    .data!),
+                                                            type:
+                                                                PageTransitionType
+                                                                    .fade));
+                                                  },
+                                                  child: storie(
+                                                      snapshot.data![index]));
+                                            }),
+                                        Positioned(
+                                            top: 3,
+                                            right: 3,
+                                            child: CircleAvatar(
+                                                radius: 15,
+                                                backgroundColor:
+                                                    Colors.blue.shade50,
+                                                child: Text(snapshot
+                                                    .data![index].total
+                                                    .toString())))
+                                      ],
+                                    ));
+                              },
+                            ),
+                            Positioned(
+                              top: 2,
+                              right: 3,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(PageTransition(
+                                      child: const StatuAdd(),
+                                      type: PageTransitionType.fade));
+                                },
+                                child: const CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor:
+                                      Color.fromARGB(255, 225, 247, 250),
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 30.0,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
                         );
                       } else if (snapshot.hasData && snapshot.data!.isEmpty) {
                         return TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).push(PageTransition(
+                                child: const StatuAdd(),
+                                type: PageTransitionType.fade));
+                          },
                           child: Text(
                             "Add new Storie",
                             style: styleText.copyWith(
@@ -191,16 +254,16 @@ class _ProfileUserState extends State<ProfileUser> {
                         );
                       } else {
                         return const Center(
-                          child: CircularProgressIndicator(),
+                          child: Spink(),
                         );
                       }
                     }),
               ),
-              specervertical(34),
+              specervertical(10),
               StreamBuilder<List<Publication>>(
                   stream: Publication.publicationsUser(widget.userApp.userId),
                   builder: (context, snapshot) {
-                    print(snapshot.error);
+                    // print(snapshot.error);
                     if (snapshot.hasError) {
                       return Center(
                           child: Text(

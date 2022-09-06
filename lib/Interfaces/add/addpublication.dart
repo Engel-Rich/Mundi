@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:minka/models/publication.dart';
 
 import 'package:minka/variable.dart';
+import "package:fluttertoast/fluttertoast.dart";
 
 class AddPublication extends StatefulWidget {
   const AddPublication({Key? key}) : super(key: key);
@@ -199,19 +200,23 @@ class _AddPublicationState extends State<AddPublication> {
             setState(() {
               loading = true;
             });
-            if (file != null) {
-              await publication.save(file: file);
+            if (file == null && controller.text.trim().isEmpty) {
+              toaster("veillez vérifier les information à publier");
             } else {
-              await publication.save();
+              if (file != null) {
+                await publication.save(file: file);
+              } else {
+                await publication.save();
+              }
+              setState(() {
+                controller.clear();
+                file = null;
+                loading = false;
+              });
+              toaster('Publication ajouté avec succés');
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
             }
-            debugPrint("publication réussite");
-            setState(() {
-              controller.clear();
-              file = null;
-              loading = false;
-            });
-            // ignore: use_build_context_synchronously
-            Navigator.pop(context);
           } catch (e) {
             debugPrint(e.toString());
             setState(() {

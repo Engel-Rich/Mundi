@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ImageView extends StatefulWidget {
-  final Image image;
+  final String image;
   const ImageView({Key? key, required this.image}) : super(key: key);
 
   @override
@@ -15,7 +15,9 @@ class _ImageViewState extends State<ImageView> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, size: 30),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
       ),
     );
