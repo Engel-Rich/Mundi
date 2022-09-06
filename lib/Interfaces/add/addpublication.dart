@@ -23,7 +23,6 @@ class _AddPublicationState extends State<AddPublication> {
   sendImage() async {
     ImagePicker picker = ImagePicker();
 
-    String imegeUrl = "";
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -192,6 +191,7 @@ class _AddPublicationState extends State<AddPublication> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final Publication publication = Publication(
+              pubid: DateTime.now().microsecondsSinceEpoch.toString(),
               uid: utilisateurApp!.uid,
               date: DateTime.now(),
               texte: controller.text.isNotEmpty ? controller.text : " ");

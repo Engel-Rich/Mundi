@@ -4,12 +4,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:minka/variable.dart';
 
 class Publication {
+  String pubid;
   final String uid;
   final String? texte;
   final DateTime date;
   String? images;
 
   Publication({
+    required this.pubid,
     required this.uid,
     required this.date,
     this.images,
@@ -20,7 +22,8 @@ class Publication {
         "uid": uid,
         "date": Timestamp.fromDate(date),
         "texte": texte,
-        "images": images
+        "images": images,
+        "pubid": pubid,
       };
 
   factory Publication.fromMap(Map<String, dynamic> map) => Publication(
@@ -28,6 +31,7 @@ class Publication {
         date: (map['date'] as Timestamp).toDate(),
         images: map['images'],
         texte: map['texte'],
+        pubid: map['pubid'] ?? "identifiant",
       );
   save({File? file}) async {
     final publicationcollection = pubCollection.doc();

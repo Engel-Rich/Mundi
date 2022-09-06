@@ -10,6 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:minka/Interfaces/Views/profile.dart';
+import 'package:minka/models/like.dart';
 import 'package:minka/models/publication.dart';
 import 'package:minka/models/storie.dart';
 import 'package:minka/models/userapp.dart';
@@ -98,6 +99,7 @@ final storiCollection = FirebaseFirestore.instance.collection("Storie");
 final friendCollection = FirebaseFirestore.instance.collection("Friends");
 final messagesRealtimeCollection = FirebaseDatabase.instance.ref('Messages');
 final chatRealtimeCollection = FirebaseDatabase.instance.ref('Chats');
+final likeRealtime = FirebaseDatabase.instance.ref("Liks");
 List<CameraDescription>? cameradescription;
 
 // Stireis
@@ -191,227 +193,248 @@ Widget storie(Storie stori) {
 
 // publication view model
 
-publicationUi(BuildContext context, Publication publication, bool isdetail) =>
-    Container(
-      decoration: BoxDecoration(
-          border: Border.all(
-        width: .5,
-        color: Colors.grey.shade500,
-      )),
-      child: FutureBuilder<UserApp>(
-          future: UserApp.userapp(publication.uid),
-          builder: (context, snapshot) {
-            return ListView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                snapshot.hasData
-                    ? ListTile(
-                        onTap: () {
-                          if (isdetail) {
-                            return;
-                          } else {
-                            Navigator.of(context).push(PageTransition(
-                              child: ProfileUser(userApp: snapshot.data!),
-                              type: PageTransitionType.fade,
-                              // duration: const Duration(milliseconds: 1250),
-                            ));
-                          }
-                        },
-                        // focusColor: Colors.red,
-                        leading: snapshot.data!.userProfile != null
-                            ? CircleAvatar(
-                                backgroundImage:
-                                    NetworkImage(snapshot.data!.userProfile!),
-                                backgroundColor:
-                                    const Color.fromRGBO(217, 217, 217, 1),
-                              )
-                            : const CircleAvatar(
-                                backgroundImage:
-                                    AssetImage("assets/profile.png"),
-                                backgroundColor:
-                                    Color.fromRGBO(217, 217, 217, 1),
-                              ),
-                        title: Text(
-                          snapshot.data!.userName,
-                          style: styleText.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+publicationUi(BuildContext context, Publication publication, bool isdetail) {
+  return Container(
+    decoration: BoxDecoration(
+        border: Border.all(
+      width: .5,
+      color: Colors.grey.shade500,
+    )),
+    child: FutureBuilder<UserApp>(
+        future: UserApp.userapp(publication.uid),
+        builder: (context, snapshot) {
+          return ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              snapshot.hasData
+                  ? ListTile(
+                      onTap: () {
+                        if (isdetail) {
+                          return;
+                        } else {
+                          Navigator.of(context).push(PageTransition(
+                            child: ProfileUser(userApp: snapshot.data!),
+                            type: PageTransitionType.fade,
+                            // duration: const Duration(milliseconds: 1250),
+                          ));
+                        }
+                      },
+                      // focusColor: Colors.red,
+                      leading: snapshot.data!.userProfile != null
+                          ? CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(snapshot.data!.userProfile!),
+                              backgroundColor:
+                                  const Color.fromRGBO(217, 217, 217, 1),
+                            )
+                          : const CircleAvatar(
+                              backgroundImage: AssetImage("assets/profile.png"),
+                              backgroundColor: Color.fromRGBO(217, 217, 217, 1),
+                            ),
+                      title: Text(
+                        snapshot.data!.userName,
+                        style: styleText.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                        subtitle: Text(
-                          DateFormat("E d MM yyyy").format(publication.date),
-                          style: styleText,
-                        ),
-                      )
-                    : const ListTile(
-                        leading: ShimmerEffet.circular(hauter: 60, largeur: 60),
-                        title: ShimmerEffet.rectangle(hauter: 16, largeur: 20),
-                        subtitle:
-                            ShimmerEffet.rectangle(hauter: 16, largeur: 20),
                       ),
-                // specervertical(3),
-                publication.texte != null
-                    ? Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 10, top: 10, bottom: 8),
-                        child: ReadMoreText(
-                          publication.texte!,
-                          trimExpandedText: 'Moins',
-                          trimCollapsedText: 'Plus',
-                          trimLines: 10,
-                          style: styleText.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            letterSpacing: 1.5,
-                            wordSpacing: 1.2,
-                          ),
-                        ))
-                    : const SizedBox.shrink(),
+                      subtitle: Text(
+                        DateFormat("E d MM yyyy").format(publication.date),
+                        style: styleText,
+                      ),
+                    )
+                  : const ListTile(
+                      leading: ShimmerEffet.circular(hauter: 60, largeur: 60),
+                      title: ShimmerEffet.rectangle(hauter: 16, largeur: 20),
+                      subtitle: ShimmerEffet.rectangle(hauter: 16, largeur: 20),
+                    ),
+              // specervertical(3),
+              publication.texte != null
+                  ? Padding(
+                      padding: const EdgeInsets.only(
+                          left: 10, right: 10, top: 10, bottom: 8),
+                      child: ReadMoreText(
+                        publication.texte!,
+                        trimExpandedText: 'Moins',
+                        trimCollapsedText: 'Plus',
+                        trimLines: 10,
+                        style: styleText.copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          letterSpacing: 1.5,
+                          wordSpacing: 1.2,
+                        ),
+                      ))
+                  : const SizedBox.shrink(),
 
-                publication.images != null
-                    ? Padding(
+              publication.images != null
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 3),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.network(
+                          publication.images!,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            return loadingProgress == null
+                                ? child
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      child: ShimmerEffet.rectangle(
+                                          shapeBorder: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(20))),
+                                          hauter: 400,
+                                          largeur: double.infinity),
+                                    ),
+                                  );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.amber,
+                              height: 230,
+                              alignment: Alignment.center,
+                              child: const Text(
+                                'Erreur de connection',
+                                style: TextStyle(fontSize: 30),
+                              ),
+                            );
+                          },
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+
+              SizedBox(
+                height: 45,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 3),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                            publication.images!,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              return loadingProgress == null
-                                  ? child
-                                  : ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 5),
-                                        child: ShimmerEffet.rectangle(
-                                            shapeBorder: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(20))),
-                                            hauter: 400,
-                                            largeur: double.infinity),
-                                      ),
-                                    );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.amber,
-                                height: 230,
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'Erreur de connection',
-                                  style: TextStyle(fontSize: 30),
-                                ),
-                              );
-                            },
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-
-                SizedBox(
-                  height: 45,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          child: InkWell(
-                            splashColor: const Color.fromRGBO(62, 139, 134, 1),
-                            onTap: () {},
-                            child: Container(
-                              width: taille(context).width / 2.5,
-                              decoration: BoxDecoration(
-                                  // color: Colors.grey.shade300.withOpacity(0.6),
-                                  borderRadius: BorderRadius.circular(30)),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    const Icon(Icons.thumb_up_alt_outlined),
-                                    Text((20).toString(),
-                                        style: styleText.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade600))
-                                  ],
-                                ),
+                        child: InkWell(
+                          splashColor: const Color.fromRGBO(62, 139, 134, 1),
+                          onTap: () {
+                            Likes likes = Likes(
+                                userId: auth.currentUser!.uid,
+                                publication: publication);
+                            likes.save();
+                          },
+                          child: Container(
+                            width: taille(context).width / 2.5,
+                            decoration: BoxDecoration(
+                                // color: Colors.grey.shade300.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(30)),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  StreamBuilder<bool>(
+                                      stream: Likes.likedByMe(
+                                          auth.currentUser!.uid, publication),
+                                      builder: (context, snapshot) {
+                                        return (snapshot.hasData &&
+                                                snapshot.data == true)
+                                            ? const Icon(Icons.thumb_up,
+                                                color: Color.fromRGBO(
+                                                    62, 139, 134, 1))
+                                            : const Icon(
+                                                Icons.thumb_up_outlined,
+                                                color: Color.fromRGBO(
+                                                    62, 139, 134, 1));
+                                      }),
+                                  StreamBuilder<int>(
+                                      stream: Likes.contlike(publication),
+                                      builder: (context, snapshot) {
+                                        int count = snapshot.data ?? 0;
+                                        return Text(count.toString(),
+                                            style: styleText.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey.shade600));
+                                      })
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          child: InkWell(
-                            splashColor: const Color.fromRGBO(62, 139, 134, 1),
-                            onTap: () {},
-                            child: Container(
-                              width: taille(context).width / 2.5,
-                              decoration: BoxDecoration(
-                                  // color: Colors.grey.shade300.withOpacity(0.6),
-                                  borderRadius: BorderRadius.circular(30)),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    const Icon(Icons.mode_comment_outlined),
-                                    Text((10).toString(),
-                                        style: styleText.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade600))
-                                  ],
-                                ),
+                    ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 3),
+                        child: InkWell(
+                          splashColor: const Color.fromRGBO(62, 139, 134, 1),
+                          onTap: () {},
+                          child: Container(
+                            width: taille(context).width / 2.5,
+                            decoration: BoxDecoration(
+                                // color: Colors.grey.shade300.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(30)),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  const Icon(Icons.mode_comment_outlined),
+                                  Text((10).toString(),
+                                      style: styleText.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey.shade600))
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          child: InkWell(
-                            splashColor: const Color.fromRGBO(62, 139, 134, 1),
-                            onTap: () {},
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  // color: Colors.grey.shade300.withOpacity(0.6),
-                                  borderRadius: BorderRadius.circular(30)),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    const FaIcon(
-                                      Icons.share,
-                                    ),
-                                    Text((2).toString(),
-                                        style: styleText.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade600))
-                                  ],
-                                ),
+                    ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 3),
+                        child: InkWell(
+                          splashColor: const Color.fromRGBO(62, 139, 134, 1),
+                          onTap: () {},
+                          child: Container(
+                            decoration: BoxDecoration(
+                                // color: Colors.grey.shade300.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(30)),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  const FaIcon(
+                                    Icons.share,
+                                  ),
+                                  Text((2).toString(),
+                                      style: styleText.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey.shade600))
+                                ],
                               ),
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            );
-          }),
-    );
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        }),
+  );
+}
 
 // shimmer effect
 
